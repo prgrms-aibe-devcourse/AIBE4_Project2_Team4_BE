@@ -1,0 +1,15 @@
+---
+name: "⚙️ 환경 설정"
+about: 빌드 설정, 라이브러리 업데이트, yml 설정 변경 등
+title: '[CHORE] '
+labels: chore
+assignees: ''
+
+---
+
+## 작업 내용
+- 변경하려는 설정 파일(build.gradle, application.yml, docker 등)과 목적 작성
+
+## 할 일
+- [ ]
+ 
