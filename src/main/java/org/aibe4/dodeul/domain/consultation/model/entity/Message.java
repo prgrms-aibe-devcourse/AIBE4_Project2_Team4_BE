@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 import org.aibe4.dodeul.domain.consultation.model.enums.MessageType;
 
-@Entity(name = "messages")
+@Entity
+@Table(name = "messages")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message extends BaseEntity {

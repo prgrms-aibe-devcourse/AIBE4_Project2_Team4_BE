@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 import org.aibe4.dodeul.domain.consultation.model.enums.FileType;
 
-@Entity(name = "consultation_files")
+@Entity
+@Table(name = "consultation_files")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ConsultationFile extends BaseEntity {

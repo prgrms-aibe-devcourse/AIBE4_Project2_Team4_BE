@@ -1,17 +1,16 @@
 package org.aibe4.dodeul.domain.consultation.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 import org.aibe4.dodeul.domain.consultation.model.enums.ConsultationRoomStatus;
 
-@Entity(name = "consultation_rooms")
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "consultation_rooms")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ConsultationRoom extends BaseEntity {
