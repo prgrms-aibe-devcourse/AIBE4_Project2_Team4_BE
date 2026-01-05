@@ -1,0 +1,29 @@
+package org.aibe4.dodeul.domain.board.model.entity;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
+
+@Entity
+@Table(
+        name = "board_comment_likes",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"board_comment_id", "member_id"}))
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class BoardCommentLike extends BaseEntity {
+
+    @Column(name = "board_comment_id", nullable = false)
+    private Long boardCommentId;
+
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
+
+    @Builder
+    public BoardCommentLike(Long boardCommentId, Long memberId) {
+        this.boardCommentId = boardCommentId;
+        this.memberId = memberId;
+    }
+}
