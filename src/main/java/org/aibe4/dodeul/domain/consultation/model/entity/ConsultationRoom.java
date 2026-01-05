@@ -1,13 +1,12 @@
 package org.aibe4.dodeul.domain.consultation.model.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 import org.aibe4.dodeul.domain.consultation.model.enums.ConsultationRoomStatus;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "consultation_rooms")
