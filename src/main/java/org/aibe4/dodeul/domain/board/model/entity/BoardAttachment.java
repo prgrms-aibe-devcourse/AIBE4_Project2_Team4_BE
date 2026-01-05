@@ -14,12 +14,8 @@ import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 public class BoardAttachment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_post_id")
+    @JoinColumn(name = "board_post_id", nullable = false)
     private BoardPost boardPost;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_comment_id")
-    private BoardComment boardComment;
 
     @Column(name = "file_url", nullable = false, length = 2048)
     private String fileUrl;
@@ -35,27 +31,11 @@ public class BoardAttachment extends BaseEntity {
 
     @Builder
     public BoardAttachment(
-            BoardPost boardPost,
-            BoardComment boardComment,
-            String fileUrl,
-            String fileName,
-            String fileType,
-            Long fileSize) {
+            BoardPost boardPost, String fileUrl, String fileName, String fileType, Long fileSize) {
         this.boardPost = boardPost;
-        this.boardComment = boardComment;
         this.fileUrl = fileUrl;
         this.fileName = fileName;
         this.fileType = fileType;
         this.fileSize = fileSize;
-    }
-
-    @PrePersist
-    @PreUpdate
-    private void validateXorConstraint() {
-        if ((boardPost == null && boardComment == null)
-                || (boardPost != null && boardComment != null)) {
-            throw new IllegalStateException(
-                    "BoardAttachment must be associated with either a BoardPost or a BoardComment, but not both.");
-        }
     }
 }

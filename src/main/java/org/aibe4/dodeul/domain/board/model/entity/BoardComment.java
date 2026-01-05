@@ -8,14 +8,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 
+// import org.aibe4.dodeul.domain.member.model.entity.Member;
+
 @Entity
 @Table(name = "board_comments")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BoardComment extends BaseEntity {
 
+    // TODO: Member Entity 완성 후 @ManyToOne 관계로 변경
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "member_id", nullable = false)
+    // private Member member;
+
     @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    private Long memberId; // 임시 사용)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_post_id", nullable = false)
@@ -81,7 +88,7 @@ public class BoardComment extends BaseEntity {
 
     private void validateNotDeleted() {
         if (this.commentStatus == CommentStatus.DELETED) {
-            throw new IllegalStateException("Comment is deleted");
+            throw new IllegalStateException("삭제된 댓글입니다");
         }
     }
 }
