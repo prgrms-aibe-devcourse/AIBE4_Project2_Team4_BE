@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 public class ConsultationRoom extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private ConsultationRoomStatus status;
+    @Column(name = "status", nullable = false)
+    private ConsultationRoomStatus status = ConsultationRoomStatus.OPEN;
 
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
@@ -29,7 +29,6 @@ public class ConsultationRoom extends BaseEntity {
     //    @Builder
     //    public ConsultationRoom(Matching matching) {
     //        this.matching = matching;
-    //        this.status = ConsultationRoomStatus.OPEN;
     //    }
 
     public void close() {
