@@ -10,20 +10,21 @@ import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 @Entity
 @Table(
         name = "board_comment_likes",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"board_comment_id", "member_id"}))
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"board_comment_id", "member_id"})})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BoardCommentLike extends BaseEntity {
 
-    @Column(name = "board_comment_id", nullable = false)
-    private Long boardCommentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_comment_id", nullable = false)
+    private BoardComment boardComment;
 
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
     @Builder
-    public BoardCommentLike(Long boardCommentId, Long memberId) {
-        this.boardCommentId = boardCommentId;
+    public BoardCommentLike(BoardComment boardComment, Long memberId) {
+        this.boardComment = boardComment;
         this.memberId = memberId;
     }
 }

@@ -1,5 +1,3 @@
-// **후순위** 2주차
-
 package org.aibe4.dodeul.domain.board.model.entity;
 
 import jakarta.persistence.*;
@@ -15,16 +13,21 @@ import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BoardAttachment extends BaseEntity {
 
-    @Column(name = "board_post_id", nullable = false)
-    private Long boardPostId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_post_id")
+    private BoardPost boardPost;
 
-    @Column(name = "file_url", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_comment_id")
+    private BoardComment boardComment;
+
+    @Column(name = "file_url", nullable = false, length = 2048)
     private String fileUrl;
 
-    @Column(name = "file_name", nullable = false)
+    @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
 
-    @Column(name = "file_type")
+    @Column(name = "file_type", length = 50)
     private String fileType;
 
     @Column(name = "file_size")
@@ -32,11 +35,27 @@ public class BoardAttachment extends BaseEntity {
 
     @Builder
     public BoardAttachment(
-            Long boardPostId, String fileUrl, String fileName, String fileType, Long fileSize) {
-        this.boardPostId = boardPostId;
+            BoardPost boardPost,
+            BoardComment boardComment,
+            String fileUrl,
+            String fileName,
+            String fileType,
+            Long fileSize) {
+        this.boardPost = boardPost;
+        this.boardComment = boardComment;
         this.fileUrl = fileUrl;
         this.fileName = fileName;
         this.fileType = fileType;
         this.fileSize = fileSize;
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void validateXorConstraint() {
+        if ((boardPost == null && boardComment == null)
+                || (boardPost != null && boardComment != null)) {
+            throw new IllegalStateException(
+                    "BoardAttachment must be associated with either a BoardPost or a BoardComment, but not both.");
+        }
     }
 }

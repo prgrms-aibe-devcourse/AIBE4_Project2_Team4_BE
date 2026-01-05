@@ -17,17 +17,17 @@ public class BoardPost extends BaseEntity {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    @Column(name = "accepted_comment_id")
-    private Long acceptedCommentId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accepted_comment_id")
+    private BoardComment acceptedComment;
 
     @Column(nullable = false, length = 255)
     private String title;
 
-    @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "board_consulting", length = 30)
+    @Column(name = "board_consulting", nullable = false, length = 30)
     private String boardConsulting;
 
     @Enumerated(EnumType.STRING)
@@ -35,13 +35,13 @@ public class BoardPost extends BaseEntity {
     private PostStatus postStatus;
 
     @Column(name = "view_count", nullable = false)
-    private Long viewCount;
+    private Integer viewCount;
 
     @Column(name = "scrap_count", nullable = false)
-    private Long scrapCount;
+    private Integer scrapCount;
 
     @Column(name = "comment_count", nullable = false)
-    private Long commentCount;
+    private Integer commentCount;
 
     @Column(name = "last_commented_at")
     private LocalDateTime lastCommentedAt;
@@ -56,81 +56,70 @@ public class BoardPost extends BaseEntity {
         this.content = content;
         this.boardConsulting = boardConsulting;
         this.postStatus = PostStatus.OPEN;
-        this.viewCount = 0L;
-        this.scrapCount = 0L;
-        this.commentCount = 0L;
+        this.viewCount = 0;
+        this.scrapCount = 0;
+        this.commentCount = 0;
     }
 
-    /** 게시글 수정 */
-    public void update(String boardConsulting, String title, String content) {
+    public void update(String title, String content, String boardConsulting) {
         validateNotDeleted();
-        if (boardConsulting != null) this.boardConsulting = boardConsulting;
-        if (title != null) this.title = title;
-        if (content != null) this.content = content;
+        this.title = title;
+        this.content = content;
+        this.boardConsulting = boardConsulting;
     }
 
-    /** 게시글 종료 (OPEN → CLOSED) */
-    public void close() {
+    public void delete() {
         validateNotDeleted();
-        if (this.postStatus == PostStatus.CLOSED) return; // 멱등
-        this.postStatus = PostStatus.CLOSED;
-    }
-
-    /** 소프트 삭제 */
-    public void softDelete() {
-        if (this.postStatus == PostStatus.DELETED) return; // 멱등
         this.postStatus = PostStatus.DELETED;
         this.deletedAt = LocalDateTime.now();
     }
 
-    /** 댓글 채택 (채택 시 자동 CLOSED) */
-    public void acceptComment(Long commentId) {
+    public void close() {
         validateNotDeleted();
         if (this.postStatus == PostStatus.CLOSED) {
-            throw new IllegalStateException("이미 종료된 게시글입니다.");
+            return;
         }
-        if (this.acceptedCommentId != null) {
-            throw new IllegalStateException("이미 채택된 댓글이 있습니다.");
-        }
-        this.acceptedCommentId = commentId;
         this.postStatus = PostStatus.CLOSED;
     }
 
-    /** 조회수 증가 */
-    public void increaseViewCount() {
+    public void acceptComment(BoardComment comment) {
         validateNotDeleted();
-        this.viewCount += 1;
+        if (this.acceptedComment != null) {
+            throw new IllegalStateException("Comment already accepted");
+        }
+        this.acceptedComment = comment;
+        this.close();
     }
 
-    /** 댓글 생성 시 호출 */
-    public void onCommentCreated() {
+    public void increaseViewCount() {
         validateNotDeleted();
-        this.commentCount += 1;
+        this.viewCount++;
+    }
+
+    public void increaseScrapCount() {
+        this.scrapCount++;
+    }
+
+    public void decreaseScrapCount() {
+        if (this.scrapCount > 0) {
+            this.scrapCount--;
+        }
+    }
+
+    public void increaseCommentCount() {
+        this.commentCount++;
         this.lastCommentedAt = LocalDateTime.now();
     }
 
-    /** 댓글 삭제 시 호출 */
-    public void onCommentDeleted() {
-        validateNotDeleted();
-        if (this.commentCount > 0) this.commentCount -= 1;
+    public void decreaseCommentCount() {
+        if (this.commentCount > 0) {
+            this.commentCount--;
+        }
     }
 
-    /** 스크랩 증가 */
-    public void increaseScrapCount() {
-        validateNotDeleted();
-        this.scrapCount += 1;
-    }
-
-    /** 스크랩 감소 */
-    public void decreaseScrapCount() {
-        validateNotDeleted();
-        if (this.scrapCount > 0) this.scrapCount -= 1;
-    }
-
-    /** 삭제 여부 검증 */
     private void validateNotDeleted() {
         if (this.postStatus == PostStatus.DELETED) {
-            throw new IllegalStateException("삭제된 게시글입니다.");
+            throw new IllegalStateException("Post is deleted");
         }
     }
 }

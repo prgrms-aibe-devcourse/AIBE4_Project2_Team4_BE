@@ -10,20 +10,21 @@ import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 @Entity
 @Table(
         name = "board_post_tag_relations",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"post_id", "tag_id"}))
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"board_post_id", "skill_tag_id"})})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BoardPostTagRelation extends BaseEntity {
 
-    @Column(name = "post_id", nullable = false)
-    private Long postId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_post_id", nullable = false)
+    private BoardPost boardPost;
 
-    @Column(name = "tag_id", nullable = false)
-    private Long tagId;
+    @Column(name = "skill_tag_id", nullable = false)
+    private Long skillTagId;
 
     @Builder
-    public BoardPostTagRelation(Long postId, Long tagId) {
-        this.postId = postId;
-        this.tagId = tagId;
+    public BoardPostTagRelation(BoardPost boardPost, Long skillTagId) {
+        this.boardPost = boardPost;
+        this.skillTagId = skillTagId;
     }
 }
