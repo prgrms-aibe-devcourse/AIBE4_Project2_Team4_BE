@@ -1,13 +1,9 @@
 package org.aibe4.dodeul.domain.board.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
-
-// import org.aibe4.dodeul.domain.tag.model.entity.SkillTag;
+import org.aibe4.dodeul.domain.common.model.entity.SkillTag;
 
 @Entity
 @Table(
@@ -21,17 +17,13 @@ public class BoardPostTagRelation extends BaseEntity {
     @JoinColumn(name = "board_post_id", nullable = false)
     private BoardPost boardPost;
 
-    // TODO: SkillTag Entity 완성 후 @ManyToOne 관계로 변경
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "skill_tag_id", nullable = false)
-    // private SkillTag skillTag;
-
-    @Column(name = "skill_tag_id", nullable = false)
-    private Long skillTagId; // 임시 사용
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "skill_tag_id", nullable = false)
+    private SkillTag skillTag;
 
     @Builder
-    public BoardPostTagRelation(BoardPost boardPost, Long skillTagId) {
+    public BoardPostTagRelation(BoardPost boardPost, SkillTag skillTag) {
         this.boardPost = boardPost;
-        this.skillTagId = skillTagId;
+        this.skillTag = skillTag;
     }
 }
