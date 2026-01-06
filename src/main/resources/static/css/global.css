@@ -206,7 +206,7 @@ main.main {
    4. Components
    ========================================= */
 
-/* Buttons */
+/* Basic Buttons */
 .btn-primary-custom {
   background-color: var(--primary-color);
   color: #fff;
@@ -238,7 +238,9 @@ main.main {
 }
 
 /* Tag & Filter Buttons */
-.btn-tag {
+
+/* 1. Base Style */
+.tag {
   display: inline-block;
   background-color: #f1f3f5;
   color: #495057;
@@ -255,38 +257,41 @@ main.main {
   transition: all 0.2s ease;
   font-family: inherit;
 }
-button.btn-tag, a.btn-tag { cursor: pointer; }
-button.btn-tag:hover, a.btn-tag:hover {
+
+/* 2. Modifier: Read-only (조회용) */
+.tag--read-only {
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 3. Modifier: Selectable (선택용) */
+.tag--selectable {
+  cursor: pointer;
+}
+
+.tag--selectable:hover {
   background-color: #e9ecef;
   color: #212529;
 }
-span.btn-tag, div.btn-tag {
-  cursor: default;
-  pointer-events: none;
-}
-span.btn-tag::after { content: none; }
 
-/* Tag Active State */
-.btn-tag.active,
-.btn-tag:active,
-input[type="checkbox"]:checked + .btn-tag,
-input[type="radio"]:checked + .btn-tag {
+/* 4. State: Active (선택된 상태) */
+.tag--selectable.tag--active {
   background-color: var(--primary-color);
   color: #fff;
   font-weight: 600;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-button.btn-tag.active:hover,
-a.btn-tag.active:hover,
-input[type="checkbox"]:checked + .btn-tag:hover,
-input[type="radio"]:checked + .btn-tag:hover {
+
+.tag--selectable.tag--active:hover {
   background-color: #000000;
   color: #ffffff;
   border-color: transparent;
   box-shadow: 0 4px 6px rgba(0,0,0,0.15);
 }
-button.btn-tag.active::after,
-a.btn-tag.active::after {
+
+/* 선택된 태그 뒤에 'X' 표시*/
+.tag--selectable.tag--active::after {
   content: "\00d7";
   padding-left: 0.5rem;
   font-weight: bold;
@@ -295,8 +300,10 @@ a.btn-tag.active::after {
   transition: opacity 0.2s;
   vertical-align: bottom;
 }
-button.btn-tag.active:hover::after,
-a.btn-tag.active:hover::after { opacity: 1.0; }
+
+.tag--selectable.tag--active:hover::after {
+  opacity: 1.0;
+}
 
 /* Forms */
 .form-control-custom {
