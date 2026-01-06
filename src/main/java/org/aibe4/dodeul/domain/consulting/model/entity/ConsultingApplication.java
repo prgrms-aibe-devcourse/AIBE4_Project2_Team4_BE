@@ -31,7 +31,12 @@ public class ConsultingApplication extends BaseEntity {
     private String fileUrl;
 
     @Builder
-    public ConsultingApplication(Long menteeId, String title, String content, ConsultingTag consultingTag, String fileUrl) {
+    public ConsultingApplication(
+            Long menteeId,
+            String title,
+            String content,
+            ConsultingTag consultingTag,
+            String fileUrl) {
         this.menteeId = menteeId;
         this.title = title;
         this.content = content;
