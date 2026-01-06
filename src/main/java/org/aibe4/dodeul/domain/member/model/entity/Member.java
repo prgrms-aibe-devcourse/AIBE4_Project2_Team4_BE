@@ -9,17 +9,10 @@ import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 import org.aibe4.dodeul.domain.member.model.enums.Provider;
 import org.aibe4.dodeul.domain.member.model.enums.Role;
 
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@Table(
-    name = "members",
-    indexes = {
-        @Index(name = "idx_members_email", columnList = "email"),
-        @Index(name = "idx_members_nickname", columnList = "nickname")
-    }
-)
+@Entity(name = "members")
+
 public class Member extends BaseEntity {
 
     @Column(nullable = false, length = 255, unique = true)
@@ -44,13 +37,12 @@ public class Member extends BaseEntity {
 
     @Builder
     private Member(
-        String email,
-        String passwordHash,
-        Provider provider,
-        String providerId,
-        Role role,
-        String nickname
-    ) {
+            String email,
+            String passwordHash,
+            Provider provider,
+            String providerId,
+            Role role,
+            String nickname) {
         this.email = email;
         this.passwordHash = passwordHash;
         this.provider = provider;
