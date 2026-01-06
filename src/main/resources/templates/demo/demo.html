@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/demo-layout}">
+      layout:decorate="~{demo/demo-layout}">
 
 <head>
   <title>UI 컴포넌트 가이드</title>
@@ -90,10 +90,11 @@
 
   <section class="mb-5">
     <h3 class="fw-bold mb-4">2. Cards </h3>
+    <p class="text-small">모든 카드 형태의 컴포넌트는 card-custom 클래스를 상속받아서 작성합니다.</p>
     <div class="row g-4">
 
       <div class="col-md-6 col-lg-3">
-        <p class="fw-bold mb-2">Type A: 멘토 프로필</p>
+        <p class="fw-bold mb-2">멘토 프로필</p>
         <div class="card-custom h-80">
 
           <div class="d-flex align-items-center mb-3">
@@ -131,7 +132,7 @@
       </div>
 
       <div class="col-md-6 col-lg-5">
-        <p class="fw-bold mb-2">Type B: 대시보드 아이템</p>
+        <p class="fw-bold mb-2">대시보드 아이템</p>
 
         <div class="card-custom d-flex align-items-center justify-content-between py-3 px-4 mb-3">
           <div class="fw-medium">김민준 멘티</div>
@@ -152,7 +153,7 @@
       </div>
 
       <div class="col-md-6 col-lg-4">
-        <p class="fw-bold mb-2">Type C: 기본 카드</p>
+        <p class="fw-bold mb-2">기본 카드</p>
         <div class="card-custom h-100 text-center d-flex flex-column justify-content-center">
           <div class="fs-1 mb-3">🚀</div>
           <h5 class="fw-bold">빠른 성장</h5>
