@@ -42,7 +42,7 @@ public class SecurityConfig {
                                 "/login",
                                 "/h2-console/**"
                         ).permitAll()
-                        .requestMatchers("/mypage/**", "/api/v1/**").authenticated()
+                        .requestMatchers("/mypage/**", "/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
