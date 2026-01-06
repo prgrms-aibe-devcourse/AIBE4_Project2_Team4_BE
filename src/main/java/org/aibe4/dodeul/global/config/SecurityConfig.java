@@ -71,7 +71,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 개발용 CORS (배포 전 도메인 제한 필수)
+    // 개발용 CORS (배포 전 도메인 제한)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
