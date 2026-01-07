@@ -34,8 +34,11 @@ public class Message extends BaseEntity {
     private Member sender;
 
     @Builder
-    public Message(MessageType messageType, String content, ConsultationRoom consultationRoom,
-                   Member sender) {
+    public Message(
+            MessageType messageType,
+            String content,
+            ConsultationRoom consultationRoom,
+            Member sender) {
         this.messageType = messageType;
         this.content = content;
         this.consultationRoom = consultationRoom;
