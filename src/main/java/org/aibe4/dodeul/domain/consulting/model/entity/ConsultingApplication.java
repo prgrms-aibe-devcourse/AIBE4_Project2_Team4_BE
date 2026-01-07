@@ -6,7 +6,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
+import org.aibe4.dodeul.domain.common.model.entity.SkillTag;
 import org.aibe4.dodeul.domain.consulting.model.enums.ConsultingTag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,9 +31,13 @@ public class ConsultingApplication extends BaseEntity {
     @Column(name = "consulting_tag", nullable = false)
     private ConsultingTag consultingTag;
 
-    // [추가됨] 아까 와이어프레임 보고 추가하기로 한 '스킬 태그'
-    @Column(name = "tech_tags")
-    private String techTags;
+    @ManyToMany
+    @JoinTable(
+        name = "application_skill_tags",       // 팀원이 보여준 ERD 테이블 이름
+        joinColumns = @JoinColumn(name = "ticket_id"),      // 내 ID (신청서)
+        inverseJoinColumns = @JoinColumn(name = "skill_tag_id") // 상대방 ID (스킬태그)
+    )
+    private List<SkillTag> skillTags = new ArrayList<>();
 
     // [수정됨] columnDefinition = "TEXT" 추가 (긴 URL 저장 가능)
     @Column(name = "file_url", columnDefinition = "TEXT")
@@ -41,13 +49,13 @@ public class ConsultingApplication extends BaseEntity {
         String title,
         String content,
         ConsultingTag consultingTag,
-        String techTags, // 빌더에도 추가
+        List<SkillTag> skillTags, // 빌더에도 추가
         String fileUrl) {
         this.menteeId = menteeId;
         this.title = title;
         this.content = content;
         this.consultingTag = consultingTag;
-        this.techTags = techTags; // 빌더에도 추가
+        this.skillTags = skillTags != null ? skillTags : new ArrayList<>();
         this.fileUrl = fileUrl;
     }
 }
