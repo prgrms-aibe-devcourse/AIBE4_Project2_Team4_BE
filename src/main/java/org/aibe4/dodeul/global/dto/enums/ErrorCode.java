@@ -25,6 +25,7 @@ public enum ErrorCode implements BaseCode {
     // 파일 업로드 관련 (용량 초과, 형식 오류 등)
     INVALID_FILE(HttpStatus.BAD_REQUEST, "유효하지 않은 파일입니다."),
 
+
     // ====================================================
     // 401 Unauthorized (인증 실패 - 누구세요?)
     // ====================================================
@@ -35,12 +36,14 @@ public enum ErrorCode implements BaseCode {
     // 로그인 실패 (아이디/비번 불일치)
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "로그인에 실패했습니다."),
 
+
     // ====================================================
     // 403 Forbidden (권한 없음 - 들어오지 마세요)
     // ====================================================
 
     // 인증은 되었으나 해당 리소스에 접근 권한이 없는 경우 (예: 멘티가 멘토 기능 사용 시도)
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+
 
     // ====================================================
     // 404 Not Found (찾을 수 없음)
@@ -52,12 +55,14 @@ public enum ErrorCode implements BaseCode {
     // 존재하지 않는 URL 호출 시
     API_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 API 경로입니다."),
 
+
     // ====================================================
     // 405 Method Not Allowed (메서드 불일치)
     // ====================================================
 
     // POST 요청을 보내야 하는데 GET을 보낸 경우 등
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 HTTP 메서드입니다."),
+
 
     // ====================================================
     // 409 Conflict (충돌 / 로직 위반)
@@ -69,6 +74,7 @@ public enum ErrorCode implements BaseCode {
     // 비즈니스 로직 위반 (상담 신청 횟수 초과, 이미 마감된 상담 등)
     // *가장 자주 커스텀 메시지를 덮어씌워서 사용하게 될 코드*
     RESOURCE_CONFLICT(HttpStatus.CONFLICT, "요청을 처리할 수 없는 상태입니다."),
+
 
     // ====================================================
     // 500 Internal Server Error (서버 터짐)
