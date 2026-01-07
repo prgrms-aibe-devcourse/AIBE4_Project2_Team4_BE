@@ -8,8 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
 import org.aibe4.dodeul.domain.consultation.model.enums.ConsultationRoomStatus;
+import org.aibe4.dodeul.domain.consulting.model.entity.ConsultingApplication;
 import org.aibe4.dodeul.domain.matching.model.entity.Matching;
-import org.aibe4.dodeul.domain.member.model.entity.Member;
 
 @Entity
 @Table(name = "consultation_rooms")
@@ -41,11 +41,22 @@ public class ConsultationRoom extends BaseEntity {
         this.closedAt = LocalDateTime.now();
     }
 
-    public Member getMentor() {
-        if (matching.getMentor() == null) {
-            return null;
+    public Matching getValidatedMatching() {
+        if (this.matching == null) {
+            throw new IllegalStateException("상담방에 연결된 매칭 정보를 찾을 수 없습니다.");
         }
 
-        return matching.getMentor();
+        return this.matching;
+    }
+
+    public ConsultingApplication getValidatedApplication() {
+        Matching validMatching = getValidatedMatching();
+        ConsultingApplication application = validMatching.getApplication();
+
+        if (application == null) {
+            throw new IllegalStateException("매칭에 연결된 상담 신청서를 찾을 수 없습니다.");
+        }
+
+        return application;
     }
 }

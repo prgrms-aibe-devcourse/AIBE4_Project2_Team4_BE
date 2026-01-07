@@ -5,40 +5,50 @@ import lombok.Builder;
 import lombok.Getter;
 import org.aibe4.dodeul.domain.consultation.model.entity.ConsultationRoom;
 import org.aibe4.dodeul.domain.consulting.model.entity.ConsultingApplication;
+import org.aibe4.dodeul.domain.matching.model.entity.Matching;
 import org.aibe4.dodeul.domain.member.model.entity.Member;
+import org.aibe4.dodeul.domain.member.model.enums.Role;
 
 @Getter
 @Builder
 public class ConsultationRoomDto {
 
-    // 멘토 정보 -> 이거 MemberDto로 빼서 멘토, 멘티인 경우 따로 빼야할듯?
-    private String mentorNickname;
-    private String mentorProfileUrl;
+    private String myRole; // 현재 나의 역할 (MENTOR or MENTEE) - 프론트 처리용
 
-    // 신청서 정보
-    private String title;
-    private String content;
-    private String fileUrl;
-    private String consultingTag;
-    //    private List<String> skillList;
-
-    // 메시지
+    private OpponentMemberDto opponentMemberDto;
+    private ConsultingApplicationDto consultingApplicationDto;
     private List<MessageDto> messageDtoList;
 
     public static ConsultationRoomDto of(
-            ConsultationRoom room,
-            ConsultingApplication application,
-            List<MessageDto> messageDtoList) {
-        Member mentor = room.getMentor();
-        String mentorNickname = (mentor != null) ? mentor.getNickname() : "(알 수 없음)";
+            ConsultationRoom room, List<MessageDto> messageDtoList, Long currentMemberId) {
+
+        // 엔티티 조회
+        Matching matching = room.getValidatedMatching();
+        ConsultingApplication application = room.getValidatedApplication();
+
+        // 상대방 정보 조회 및 내 역할 설정
+        Member opponentMember = resolveOpponent(matching, currentMemberId);
+        String myRole = resolveMyRole(matching, currentMemberId);
 
         return ConsultationRoomDto.builder()
-                .mentorNickname(mentorNickname)
-                .title(application.getTitle())
-                .content(application.getContent())
-                .fileUrl(application.getFileUrl())
-                .consultingTag(application.getConsultingTag().name())
+                .myRole(myRole)
+                .opponentMemberDto(OpponentMemberDto.of(opponentMember))
+                .consultingApplicationDto(ConsultingApplicationDto.of(application))
                 .messageDtoList(messageDtoList)
                 .build();
+    }
+
+    private static Member resolveOpponent(Matching matching, Long currentMemberId) {
+        if (matching.getMentor().getId().equals(currentMemberId)) {
+            return matching.getMentee();
+        }
+        return matching.getMentor();
+    }
+
+    private static String resolveMyRole(Matching matching, Long currentMemberId) {
+        if (matching.getMentor().getId().equals(currentMemberId)) {
+            return Role.MENTOR.name();
+        }
+        return Role.MENTEE.name();
     }
 }

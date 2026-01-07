@@ -16,12 +16,12 @@ public class ConsultationRoomController {
 
     private final ConsultationService consultationService;
 
-    @GetMapping("/room/{roomId}")
-    public String enterRoom(@PathVariable Long roomId, Model model) {
+    @GetMapping("/room/{roomId}/{memberId}")
+    public String enterRoom(@PathVariable Long roomId, @PathVariable Long memberId, Model model) {
 
         ConsultationRoomDto consultationRoomDto =
-            consultationService.getRoomWithApplication(
-                roomId, 1L); // 현재 회원이 누군지.. security 적용되면 변경 필요
+                consultationService.getRoomWithApplication(
+                        roomId, memberId); // 현재 회원이 누군지.. security 적용되면 변경 필요
 
         model.addAttribute("consultationRoomDto", consultationRoomDto);
 
