@@ -9,22 +9,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true) // 1. 클래스 레벨: 기본적으로 '읽기 전용' 모드로 설정
+@Transactional(readOnly = true)
 public class ConsultingApplicationService {
 
     private final ConsultingApplicationRepository consultingApplicationRepository;
 
-    @Transactional // 2. 메서드 레벨: 여기는 저장을 해야 하므로 '쓰기 허용' (기본값)으로 덮어씀
+    @Transactional
     public Long saveApplication(ConsultingApplicationRequest request) {
 
         ConsultingApplication application =
-                ConsultingApplication.builder()
-                        .menteeId(request.getMenteeId())
-                        .title(request.getTitle())
-                        .content(request.getContent())
-                        .consultingTag(request.getConsultingTag())
-                        .fileUrl(request.getFileUrl())
-                        .build();
+            ConsultingApplication.builder()
+                .menteeId(request.getMenteeId())
+                .title(request.getTitle())
+                .content(request.getContent())
+                .consultingTag(request.getConsultingTag())
+
+                // [추가됨] 여기가 핵심입니다! DTO에서 태그를 꺼내 엔티티에 넣습니다.
+                // 주의: DTO(ConsultingApplicationRequest)에도 getTechTags()가 있어야 합니다.
+                .techTags(request.getTechTags())
+
+                .fileUrl(request.getFileUrl()) // 긴 URL도 여기로 그냥 넘기면 됩니다.
+                .build();
 
         ConsultingApplication savedApplication = consultingApplicationRepository.save(application);
 
