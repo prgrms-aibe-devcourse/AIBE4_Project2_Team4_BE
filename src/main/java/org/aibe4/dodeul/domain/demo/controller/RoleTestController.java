@@ -1,7 +1,4 @@
-q/**
- * Role-based access control test controller.
- * For development/testing only.
- */
+/** Role-based access control test controller. For development/testing only. */
 package org.aibe4.dodeul.domain.demo.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
