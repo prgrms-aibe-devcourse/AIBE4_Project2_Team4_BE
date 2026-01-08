@@ -1,5 +1,6 @@
 package org.aibe4.dodeul.domain.common.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.aibe4.dodeul.domain.common.model.dto.JobTagListResponse;
 import org.aibe4.dodeul.domain.common.model.dto.SkillTagListResponse;
@@ -11,8 +12,6 @@ import org.aibe4.dodeul.global.util.EntityMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,13 +22,13 @@ public class CommonService {
 
     public JobTagListResponse getJobTags() {
         List<String> jobTagNames =
-            EntityMapper.toNameList(jobTagRepository.findAll(), JobTag::getName);
+                EntityMapper.toNameList(jobTagRepository.findAll(), JobTag::getName);
         return JobTagListResponse.from(jobTagNames);
     }
 
     public SkillTagListResponse getSkillTags() {
         List<String> skillTagNames =
-            EntityMapper.toNameList(skillTagRepository.findAll(), SkillTag::getName);
+                EntityMapper.toNameList(skillTagRepository.findAll(), SkillTag::getName);
         return SkillTagListResponse.from(skillTagNames);
     }
 }

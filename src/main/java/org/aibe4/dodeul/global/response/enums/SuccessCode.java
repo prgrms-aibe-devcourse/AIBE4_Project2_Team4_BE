@@ -1,8 +1,8 @@
-package org.aibe4.dodeul.global.dto.enums;
+package org.aibe4.dodeul.global.response.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.aibe4.dodeul.global.dto.BaseCode;
+import org.aibe4.dodeul.global.response.BaseCode;
 import org.springframework.http.HttpStatus;
 
 @Getter

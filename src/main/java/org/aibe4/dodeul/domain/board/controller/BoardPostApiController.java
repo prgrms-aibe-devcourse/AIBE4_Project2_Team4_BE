@@ -7,7 +7,7 @@ import org.aibe4.dodeul.domain.board.model.dto.BoardPostListRequest;
 import org.aibe4.dodeul.domain.board.model.dto.BoardPostListResponse;
 import org.aibe4.dodeul.domain.board.service.BoardPostService;
 import org.aibe4.dodeul.domain.consulting.model.enums.ConsultingTag;
-import org.aibe4.dodeul.global.dto.ApiResponse;
+import org.aibe4.dodeul.global.response.ApiResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
