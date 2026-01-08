@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface MenteeProfileRepository extends JpaRepository<MenteeProfile, Long> {
 
-    Optional<MenteeProfile> findByMember_Id(Long memberId);
+    Optional<MenteeProfile> findByMemberId(Long memberId);
 
-    boolean existsByMember_Id(Long memberId);
+    boolean existsByMemberId(Long memberId);
 }

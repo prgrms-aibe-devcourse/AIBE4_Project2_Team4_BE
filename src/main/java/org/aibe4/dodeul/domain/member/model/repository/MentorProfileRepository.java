@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface MentorProfileRepository extends JpaRepository<MentorProfile, Long> {
 
-    Optional<MentorProfile> findByMember_Id(Long memberId);
+    Optional<MentorProfile> findByMemberId(Long memberId);
 
-    boolean existsByMember_Id(Long memberId);
+    boolean existsByMemberId(Long memberId);
 }
