@@ -6,10 +6,6 @@
 <head>
   <title>상담 채팅방</title>
   <link rel="stylesheet" th:href="@{/css/consultation/consultation-room.css}">
-  <style>
-    /* CSS 파일 로드 실패 시를 대비한 인라인 스타일 (선택 사항) */
-    /* 실제 운영 환경에서는 외부 CSS 파일로 관리하는 것이 좋습니다. */
-  </style>
 </head>
 
 <div layout:fragment="content">
@@ -26,14 +22,14 @@
             <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3"
                  style="width: 40px; height: 40px; border: 1px solid var(--color-border);">
               <!--/*@thymesVar id="profileUrl" type=""*/-->
-              <img th:if="${consultationRoomDto.opponentMemberDto.profileUrl != null}"
-                   th:src="${consultationRoomDto.opponentMemberDto.profileUrl}" alt="Profile" class="rounded-circle"
+              <img th:if="${consultationRoomDto.memberDto.profileUrl != null}"
+                   th:src="${consultationRoomDto.memberDto.profileUrl}" alt="Profile" class="rounded-circle"
                    style="width: 100%; height: 100%; object-fit: cover;">
-              <i th:unless="${consultationRoomDto.opponentMemberDto.profileUrl != null}"
+              <i th:unless="${consultationRoomDto.memberDto.profileUrl != null}"
                  class="bi bi-person-fill text-secondary fs-5"></i>
             </div>
             <div>
-              <div class="fw-bold" th:text="${consultationRoomDto.opponentMemberDto.nickname}">상대방</div>
+              <div class="fw-bold" th:text="${consultationRoomDto.memberDto.nickname}">상대방</div>
               <div class="text-small" style="font-size: 0.8rem;"
                    th:text="${consultationRoomDto.myRole == 'MENTOR' ? '멘티' : '멘토'}">상대방 역할
               </div>
@@ -48,20 +44,31 @@
 
         <div class="chat-messages" id="chatMessages">
           <th:block th:each="message : ${consultationRoomDto.messageDtoList}">
+
             <div th:if="${message.type == 'SYSTEM'}" class="text-center my-3">
-                             <span class="badge bg-light text-secondary fw-normal border px-3 py-2 rounded-pill"
-                                   th:text="${message.content}">시스템 메시지</span>
+      <span class="badge bg-light text-secondary fw-normal border px-3 py-2 rounded-pill"
+            th:text="${message.content}">시스템 메시지</span>
             </div>
 
             <div th:unless="${message.type == 'SYSTEM'}"
-                 class="message"
-                 th:classappend="${message.isMine} ? 'sent' : 'received'">
-              <div th:if="${message.type == 'IMAGE'}">
-                <img th:src="${message.content}" alt="이미지" style="max-width: 100%; border-radius: 8px; cursor: pointer;"
-                     onclick="window.open(this.src)">
+                 class="d-flex flex-column mb-2"
+                 th:classappend="${message.senderId == currentMemberId} ? 'align-items-end' : 'align-items-start'">
+
+      <span th:if="${message.senderId != currentMemberId}"
+            th:text="${message.senderNickname}"
+            class="fw-bold text-secondary mb-1 ms-1"
+            style="font-size: 0.8rem;">닉네임</span>
+
+              <div class="message"
+                   th:classappend="${message.senderId == currentMemberId} ? 'sent' : 'received'">
+                <div th:if="${message.type == 'IMAGE'}">
+                  <img th:src="${message.content}" alt="이미지" style="max-width: 100%; border-radius: 8px; cursor: pointer;"
+                       onclick="window.open(this.src)">
+                </div>
+                <span th:unless="${message.type == 'IMAGE'}" th:text="${message.content}">내용</span>
               </div>
-              <span th:unless="${message.type == 'IMAGE'}" th:text="${message.content}">내용</span>
             </div>
+
           </th:block>
         </div>
 
@@ -70,7 +77,7 @@
             <i class="bi bi-paperclip fs-5"></i>
           </button>
           <textarea class="chat-input" placeholder="메시지를 입력하세요..." rows="1"></textarea>
-          <button class="btn btn-primary-custom" style="height: 48px; padding-left: 1.5rem; padding-right: 1.5rem;">전송
+          <button id="send-btn" class="btn btn-primary-custom" style="height: 48px; padding-left: 1.5rem; padding-right: 1.5rem;">전송
           </button>
         </div>
       </div>
@@ -125,18 +132,119 @@
 </div>
 
 <th:block layout:fragment="script">
-  <script>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+  <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function () {
+      // 1. 초기화 및 스크롤 설정
       const chatMessages = document.getElementById('chatMessages');
+      const textarea = document.querySelector('.chat-input');
+      const sendBtn = document.getElementById('send-btn');
+
+      const roomId = [[${consultationRoomDto.consultationRoomId}]];
+      const currentMemberId = [[${consultationRoomDto.memberDto.memberId}]]; // 컨트롤러에서 전달 필요
+
       if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      const textarea = document.querySelector('.chat-input');
-      if (textarea) {
-        textarea.addEventListener('input', function () {
-          this.style.height = 'auto';
-          this.style.height = (this.scrollHeight) + 'px';
-          if (this.value === '') this.style.height = '48px';
+      // 2. 웹소켓 연결 설정
+      // WebSocketConfiguration에 설정된 엔드포인트와 일치해야 함 (/ws)
+      const socket = new SockJS('/ws');
+      const stompClient = Stomp.over(socket);
+
+      stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+
+        // 특정 상담방 채널 구독
+        stompClient.subscribe('/topic/room/' + roomId, function (response) {
+          const message = JSON.parse(response.body);
+          appendMessage(message);
         });
+      }, function(error) {
+        console.error('웹소켓 연결 실패: ' + error);
+      });
+
+      // 3. 메시지 전송 함수
+      function sendMessage() {
+        const content = textarea.value.trim();
+        if (content && stompClient.connected) {
+          stompClient.send("/app/chat/send", {}, JSON.stringify({
+            'roomId': roomId,
+            'senderId': currentMemberId,
+            'content': content
+          }));
+          textarea.value = '';
+          textarea.style.height = '48px';
+        } else {
+            console.warn("메시지를 보낼 수 없습니다. 내용이 비었거나 연결되지 않았습니다.");
+        }
+      }
+
+      // 4. 메시지 화면 추가 함수
+      function appendMessage(message) {
+        // 1. 전체를 감싸는 Wrapper 생성 (정렬 담당)
+        const wrapperDiv = document.createElement('div');
+        wrapperDiv.className = 'd-flex flex-column mb-2'; // 부트스트랩 클래스 활용
+
+        // 타입 비교 (== 사용)
+        const isMine = message.senderId == currentMemberId;
+
+        if (message.type === 'SYSTEM') {
+          wrapperDiv.className = 'text-center my-3';
+          wrapperDiv.innerHTML = `<span class="badge bg-light text-secondary fw-normal border px-3 py-2 rounded-pill">${message.content}</span>`;
+        } else {
+          // 2. 정렬 클래스 추가 (내 거면 오른쪽, 남의 거면 왼쪽)
+          wrapperDiv.classList.add(isMine ? 'align-items-end' : 'align-items-start');
+
+          // 3. 상대방 메시지일 경우 닉네임 추가
+          if (!isMine) {
+            const nicknameSpan = document.createElement('span');
+            nicknameSpan.className = 'fw-bold text-secondary mb-1 ms-1';
+            nicknameSpan.style.fontSize = '0.8rem';
+            nicknameSpan.textContent = message.senderNickname; // DTO에 있는 닉네임 사용
+            wrapperDiv.appendChild(nicknameSpan);
+          }
+
+          // 4. 말풍선(Bubble) 생성
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${isMine ? 'sent' : 'received'}`;
+
+          let contentHtml = '';
+          if (message.type === 'IMAGE') {
+            contentHtml = `<img src="${message.content}" style="max-width: 100%; border-radius: 8px; cursor: pointer;" onclick="window.open(this.src)">`;
+          } else {
+            contentHtml = `<span>${message.content}</span>`;
+          }
+          messageDiv.innerHTML = contentHtml;
+
+          // Wrapper에 말풍선 넣기
+          wrapperDiv.appendChild(messageDiv);
+        }
+
+        // 최종적으로 채팅창에 Wrapper 추가
+        chatMessages.appendChild(wrapperDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      // 5. 이벤트 리스너 (클릭 및 엔터키)
+      if (sendBtn) {
+          sendBtn.addEventListener('click', sendMessage);
+      }
+
+      if (textarea) {
+          textarea.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          });
+
+          // 입력창 자동 높이 조절
+          textarea.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if (this.value === '') this.style.height = '48px';
+          });
       }
     });
   </script>
