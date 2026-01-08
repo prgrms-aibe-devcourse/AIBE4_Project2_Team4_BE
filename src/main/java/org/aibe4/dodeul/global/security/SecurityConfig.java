@@ -34,12 +34,14 @@ public class SecurityConfig {
                                         .hasRole("MENTEE")
 
                                         // 공개 허용
+                                        // 공개 허용
                                         .requestMatchers(
                                                 "/",
                                                 "/error",
                                                 "/css/**",
                                                 "/js/**",
                                                 "/images/**",
+                                                "/icons/**", // 추가
                                                 "/favicon.ico",
                                                 "/auth/**",
                                                 "/onboarding/**",
