@@ -1,4 +1,4 @@
-package org.aibe4.dodeul.domain.consulting.dto;
+package org.aibe4.dodeul.domain.consulting.model.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.aibe4.dodeul.domain.common.model.entity.BaseEntity;
-import org.aibe4.dodeul.domain.common.model.entity.SkillTag;
 import org.aibe4.dodeul.domain.consulting.model.enums.ConsultingTag;
 
 import java.util.ArrayList;
@@ -31,15 +30,11 @@ public class ConsultingApplication extends BaseEntity {
     @Column(name = "consulting_tag", nullable = false)
     private ConsultingTag consultingTag;
 
-    @ManyToMany
-    @JoinTable(
-        name = "application_skill_tags",       // 팀원이 보여준 ERD 테이블 이름
-        joinColumns = @JoinColumn(name = "ticket_id"),      // 내 ID (신청서)
-        inverseJoinColumns = @JoinColumn(name = "skill_tag_id") // 상대방 ID (스킬태그)
-    )
-    private List<SkillTag> skillTags = new ArrayList<>();
+    // [수정 포인트] ManyToMany 삭제 -> OneToMany로 변경
+    // 타겟이 SkillTag가 아니라, 중간 테이블인 ApplicationSkillTag가 됩니다.
+    @OneToMany(mappedBy = "consultingApplication", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ApplicationSkillTag> applicationSkillTags = new ArrayList<>();
 
-    // [수정됨] columnDefinition = "TEXT" 추가 (긴 URL 저장 가능)
     @Column(name = "file_url", columnDefinition = "TEXT")
     private String fileUrl;
 
@@ -49,13 +44,17 @@ public class ConsultingApplication extends BaseEntity {
         String title,
         String content,
         ConsultingTag consultingTag,
-        List<SkillTag> skillTags, // 빌더에도 추가
-        String fileUrl) {
+        String fileUrl) { // 빌더에서 리스트는 뺐습니다 (생성 시점엔 보통 비어있으므로)
         this.menteeId = menteeId;
         this.title = title;
         this.content = content;
         this.consultingTag = consultingTag;
-        this.skillTags = skillTags != null ? skillTags : new ArrayList<>();
         this.fileUrl = fileUrl;
+    }
+
+    // 스킬 태그를 추가하는 비즈니스 메서드 (Service에서 사용)
+    public void addSkillTag(ApplicationSkillTag applicationSkillTag) {
+        this.applicationSkillTags.add(applicationSkillTag);
+//        applicationSkillTag.setConsultingApplication(this); // 양방향 연결
     }
 }
