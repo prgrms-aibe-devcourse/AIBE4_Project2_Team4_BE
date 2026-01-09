@@ -18,9 +18,7 @@ public class OnboardingApiController {
 
     @PostMapping("/role")
     public ApiResponse<Void> selectRole(
-        @RequestBody RoleSelectRequest request,
-        HttpSession session
-    ) {
+            @RequestBody RoleSelectRequest request, HttpSession session) {
         session.setAttribute(AuthSessionKeys.SELECTED_ROLE, request.role());
         return ApiResponse.success(SuccessCode.SUCCESS, null);
     }

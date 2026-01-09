@@ -20,11 +20,7 @@ public class AuthApiController {
     @PostMapping("/register")
     public ApiResponse<Long> register(@RequestBody RegisterRequest request) {
         Long memberId =
-            memberService.registerLocal(
-                request.email(),
-                request.password(),
-                request.role()
-            );
+                memberService.registerLocal(request.email(), request.password(), request.role());
 
         return ApiResponse.success(SuccessCode.SIGNUP_SUCCESS, memberId);
     }
