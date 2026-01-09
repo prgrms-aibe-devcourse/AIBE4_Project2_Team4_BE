@@ -1,7 +1,9 @@
 package org.aibe4.dodeul.global.security;
 
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,8 +13,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -25,36 +25,25 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            // CORS
-            .cors(Customizer.withDefaults())
-
-            // CSRF: UI는 보호, API는 제외(개발 편의)
+        http.cors(Customizer.withDefaults())
             .csrf(
                 csrf ->
                     csrf.ignoringRequestMatchers("/api/**", "/h2-console/**")
                         .ignoringRequestMatchers("/consultations/**")
-                        .ignoringRequestMatchers("/ws/**")) // 웹소켓 엔드포인트 CSRF 제외
-
-            // URL 권한
+                        .ignoringRequestMatchers("/ws/**"))
             .authorizeHttpRequests(
                 auth ->
-                    auth
-                        // demo role 테스트 보호 (ApiController 기준)
-                        .requestMatchers("/api/demo/role/mentor")
+                    auth.requestMatchers("/api/demo/role/mentor")
                         .hasRole("MENTOR")
                         .requestMatchers("/api/demo/role/mentee")
                         .hasRole("MENTEE")
-
-                        // 공개 허용
-                        // 공개 허용
                         .requestMatchers(
                             "/",
                             "/error",
                             "/css/**",
                             "/js/**",
                             "/images/**",
-                            "/icons/**", // 추가
+                            "/icons/**",
                             "/favicon.ico",
                             "/auth/**",
                             "/onboarding/**",
@@ -67,13 +56,25 @@ public class SecurityConfig {
                             "/login/oauth2/**",
                             "/h2-console/**",
                             "/demo/**",
-                            "/api/board/posts",
-                            "/demo/**",
-                            "/api/board/posts",
-                            "/api/board/posts/**",
                             "/consultations/**",
-                            "/ws/**") // 웹소켓 엔드포인트 허용
+                            "/ws/**")
                         .permitAll()
+
+                        // 게시판(API) 허용 범위
+                        .requestMatchers(HttpMethod.GET, "/api/board/posts")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/board/posts/**")
+                        .permitAll()
+
+                        // 게시판(View) 허용 범위: 비로그인은 목록만 가능
+                        .requestMatchers(HttpMethod.GET, "/board/posts")
+                        .permitAll()
+                        .requestMatchers("/board/posts/new")
+                        .authenticated()
+                        .requestMatchers(HttpMethod.POST, "/board/posts")
+                        .authenticated()
+                        .requestMatchers(HttpMethod.GET, "/board/posts/**")
+                        .authenticated()
 
                         // 역할 기반 (mypage)
                         .requestMatchers("/mypage/mentor/**")
@@ -92,14 +93,14 @@ public class SecurityConfig {
                         .authenticated())
             .sessionManagement(
                 session ->
-                    session.sessionFixation(
-                            sessionFixation -> sessionFixation.migrateSession())
+                    session
+                        .sessionFixation(sessionFixation -> sessionFixation.migrateSession())
                         .invalidSessionUrl("/auth/login?expired"))
             .formLogin(
                 form ->
                     form.loginPage("/auth/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/home", true)
+                        .defaultSuccessUrl("/", false)
                         .permitAll())
             .logout(
                 logout ->
