@@ -3,7 +3,7 @@ package org.aibe4.dodeul.domain.member.controller;
 import lombok.RequiredArgsConstructor;
 import org.aibe4.dodeul.domain.member.model.dto.NicknameUpdateRequest;
 import org.aibe4.dodeul.domain.member.service.MemberService;
-import org.aibe4.dodeul.global.response.ApiResponse;
+import org.aibe4.dodeul.global.response.CommonResponse;
 import org.aibe4.dodeul.global.response.enums.SuccessCode;
 import org.aibe4.dodeul.global.security.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,11 +20,11 @@ public class NicknameApiController {
     private final MemberService memberService;
 
     @PutMapping("/nickname")
-    public ApiResponse<Void> updateNickname(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @RequestBody NicknameUpdateRequest request) {
+    public CommonResponse<Void> updateNickname(
+        @AuthenticationPrincipal CustomUserDetails user,
+        @RequestBody NicknameUpdateRequest request) {
 
         memberService.updateNickname(user.getMemberId(), request.nickname());
-        return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, null);
+        return CommonResponse.success(SuccessCode.UPDATE_SUCCESS, null);
     }
 }

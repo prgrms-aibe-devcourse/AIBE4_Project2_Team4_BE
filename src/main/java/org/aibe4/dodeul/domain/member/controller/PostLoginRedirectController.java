@@ -14,7 +14,7 @@ public class PostLoginRedirectController {
 
     private final MemberService memberService;
 
-    @GetMapping("/home")
+    @GetMapping(/post-login")
     public String home(@AuthenticationPrincipal CustomUserDetails user) {
         Member member = memberService.getMemberOrThrow(user.getMemberId());
 
