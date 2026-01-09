@@ -13,9 +13,10 @@ import org.aibe4.dodeul.domain.member.model.enums.Role;
 @Builder
 public class ConsultationRoomDto {
 
+    private Long consultationRoomId;
     private String myRole; // 현재 나의 역할 (MENTOR or MENTEE) - 프론트 처리용
 
-    private OpponentMemberDto opponentMemberDto;
+    private MemberDto memberDto;
     private ConsultingApplicationDto consultingApplicationDto;
     private List<MessageDto> messageDtoList;
 
@@ -31,8 +32,9 @@ public class ConsultationRoomDto {
         String myRole = resolveMyRole(matching, currentMemberId);
 
         return ConsultationRoomDto.builder()
+                .consultationRoomId(room.getId())
                 .myRole(myRole)
-                .opponentMemberDto(OpponentMemberDto.of(opponentMember))
+                .memberDto(MemberDto.of(opponentMember))
                 .consultingApplicationDto(ConsultingApplicationDto.of(application))
                 .messageDtoList(messageDtoList)
                 .build();

@@ -1,5 +1,6 @@
 package org.aibe4.dodeul.global.security;
 
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -11,8 +12,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 @Configuration
 public class SecurityConfig {
 
@@ -23,41 +22,55 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/h2-console/**", "/consultations"))
-            .authorizeHttpRequests(
-                auth ->
-                    auth
-                        // demo role 테스트 보호 (ApiController 기준)
-                        .requestMatchers("/api/demo/role/mentor")
-                        .hasRole("MENTOR")
-                        .requestMatchers("/api/demo/role/mentee")
-                        .hasRole("MENTEE")
+        http
+                // CORS
+                .cors(Customizer.withDefaults())
 
-                        // 공개 허용
-                        // 공개 허용
-                        .requestMatchers(
-                            "/",
-                            "/error",
-                            "/css/**",
-                            "/js/**",
-                            "/images/**",
-                            "/icons/**", // 추가
-                            "/favicon.ico",
-                            "/auth/**",
-                            "/onboarding/**",
-                            "/api/auth/**",
-                            "/api/onboarding/**",
-                            "/swagger-ui.html",
-                            "/swagger-ui/**",
-                            "/v3/api-docs/**",
-                            "/oauth2/**",
-                            "/login/oauth2/**",
-                            "/h2-console/**",
-                            "/demo/**",
-                            "/api/board/posts",
-                            "/consultations/**")
-                        .permitAll()
+                // CSRF: UI는 보호, API는 제외(개발 편의)
+                .csrf(
+                        csrf ->
+                                csrf.ignoringRequestMatchers("/api/**", "/h2-console/**")
+                                        .ignoringRequestMatchers("/consultations/**")
+                                        .ignoringRequestMatchers("/ws/**")) // 웹소켓 엔드포인트 CSRF 제외
+
+                // URL 권한
+                .authorizeHttpRequests(
+                        auth ->
+                                auth
+                                        // demo role 테스트 보호 (ApiController 기준)
+                                        .requestMatchers("/api/demo/role/mentor")
+                                        .hasRole("MENTOR")
+                                        .requestMatchers("/api/demo/role/mentee")
+                                        .hasRole("MENTEE")
+
+                                        // 공개 허용
+                                        // 공개 허용
+                                        .requestMatchers(
+                                                "/",
+                                                "/error",
+                                                "/css/**",
+                                                "/js/**",
+                                                "/images/**",
+                                                "/icons/**", // 추가
+                                                "/favicon.ico",
+                                                "/auth/**",
+                                                "/onboarding/**",
+                                                "/api/auth/**",
+                                                "/api/onboarding/**",
+                                                "/swagger-ui.html",
+                                                "/swagger-ui/**",
+                                                "/v3/api-docs/**",
+                                                "/oauth2/**",
+                                                "/login/oauth2/**",
+                                                "/h2-console/**",
+                                                "/demo/**",
+                                                "/api/board/posts",
+                                                "/demo/**",
+                                                "/api/board/posts",
+                                                "/api/board/posts/**",
+                                                "/consultations/**",
+                                                "/ws/**") // 웹소켓 엔드포인트 허용
+                                        .permitAll()
 
                         // 역할 기반 (mypage)
                         .requestMatchers("/mypage/mentor/**")
