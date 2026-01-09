@@ -36,7 +36,7 @@ public class ConsultingApplicationController {
         Long savedApplicationId = consultingApplicationService.saveApplication(request);
 
         // 2. 리다이렉션
-        return "redirect:/matching/recommend?applicationId=" + savedApplicationId;
+        return "redirect:/matchings/new?applicationId=" + savedApplicationId;
     }
 
     @Operation(summary = "상담 신청 상세 조회", description = "상담 신청서의 상세 내용을 조회합니다.")

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +25,9 @@ public class ConsultingApplicationService {
     private final ConsultingApplicationRepository consultingApplicationRepository;
     private final SkillTagRepository skillTagRepository;
 
-    // ✅ [추가된 부분] 상담 신청서 상세 조회
+    /**
+     * 상담 신청서 상세 조회 - 컨트롤러나 외부 반환용
+     */
     public ConsultingApplicationDetailResponse getApplicationDetail(Long applicationId) {
         ConsultingApplication application =
             consultingApplicationRepository
@@ -36,6 +39,14 @@ public class ConsultingApplicationService {
 
         // 엔티티를 DTO로 변환해서 반환
         return ConsultingApplicationDetailResponse.from(application);
+    }
+
+    /**
+     * 상담 신청서 상세 조회 - 서비스나 내부 로직용
+     */
+    public ConsultingApplication findApplicationEntity(Long applicationId) {
+        return consultingApplicationRepository.findById(applicationId)
+            .orElseThrow(() -> new NoSuchElementException("해당 신청서를 찾을 수 없습니다: " + applicationId));
     }
 
     // [기존 코드] 상담 신청서 저장 (변경 없음)
