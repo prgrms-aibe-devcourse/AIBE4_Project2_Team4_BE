@@ -9,7 +9,7 @@ import org.aibe4.dodeul.global.response.enums.SuccessCode;
 @Getter
 @AllArgsConstructor
 @JsonPropertyOrder({"code", "message", "data"})
-public class ApiResponse<T> {
+public class CommonResponse<T> {
 
     private int code;
     private String message;
@@ -19,11 +19,11 @@ public class ApiResponse<T> {
      * [성공 응답 1] - Enum에 정의된 기본 메시지 사용
      *
      * @param successCode 성공 코드 Enum
-     * @param data 반환할 데이터 (없으면 null)
+     * @param data        반환할 데이터 (없으면 null)
      */
-    public static <T> ApiResponse<T> success(SuccessCode successCode, T data) {
-        return new ApiResponse<>(
-                successCode.getHttpStatus().value(), successCode.getMessage(), data);
+    public static <T> CommonResponse<T> success(SuccessCode successCode, T data) {
+        return new CommonResponse<>(
+            successCode.getHttpStatus().value(), successCode.getMessage(), data);
     }
 
     /**
@@ -31,16 +31,18 @@ public class ApiResponse<T> {
      * 구체적인 안내가 필요할 때 사용
      *
      * @param successCode 성공 코드 Enum
-     * @param data 반환할 데이터
-     * @param message 덮어씌울 상세 메시지
+     * @param data        반환할 데이터
+     * @param message     덮어씌울 상세 메시지
      */
-    public static <T> ApiResponse<T> success(SuccessCode successCode, T data, String message) {
-        return new ApiResponse<>(successCode.getHttpStatus().value(), message, data);
+    public static <T> CommonResponse<T> success(SuccessCode successCode, T data, String message) {
+        return new CommonResponse<>(successCode.getHttpStatus().value(), message, data);
     }
 
-    /** [실패 응답 1] - Enum에 정의된 기본 메시지 사용 예: "잘못된 입력값입니다." 등 고정된 메시지가 필요할 때 */
-    public static <T> ApiResponse<T> fail(ErrorCode errorCode) {
-        return new ApiResponse<>(errorCode.getHttpStatus().value(), errorCode.getMessage(), null);
+    /**
+     * [실패 응답 1] - Enum에 정의된 기본 메시지 사용 예: "잘못된 입력값입니다." 등 고정된 메시지가 필요할 때
+     */
+    public static <T> CommonResponse<T> fail(ErrorCode errorCode) {
+        return new CommonResponse<>(errorCode.getHttpStatus().value(), errorCode.getMessage(), null);
     }
 
     /**
@@ -48,9 +50,9 @@ public class ApiResponse<T> {
      * 따라 메시지를 다르게 보내야 할 때 사용
      *
      * @param errorCode 에러 코드 Enum (HTTP Status 등 공통 속성 사용)
-     * @param message 덮어씌울 상세 메시지
+     * @param message   덮어씌울 상세 메시지
      */
-    public static <T> ApiResponse<T> fail(ErrorCode errorCode, String message) {
-        return new ApiResponse<>(errorCode.getHttpStatus().value(), message, null);
+    public static <T> CommonResponse<T> fail(ErrorCode errorCode, String message) {
+        return new CommonResponse<>(errorCode.getHttpStatus().value(), message, null);
     }
 }

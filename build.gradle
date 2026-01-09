@@ -72,10 +72,11 @@ dependencies {
 spotless {
     java {
         target '**/*.java'
+        // 불필요한 변경 방지를 위해 코드 포맷팅 비활성화
         // 구글 스타일(AOSP) = 들여쓰기 4칸 적용
-        googleJavaFormat().aosp()
+        // googleJavaFormat().aosp()
 
-        importOrder() // import 순서 정의
+        // importOrder() // import 순서 정의
         removeUnusedImports() // 안 쓰는 import 제거
         trimTrailingWhitespace() // 끝 공백 제거
         endWithNewline() // 파일 끝 빈 줄 추가
