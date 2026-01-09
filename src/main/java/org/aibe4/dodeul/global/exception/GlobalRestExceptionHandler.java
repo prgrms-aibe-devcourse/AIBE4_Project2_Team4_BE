@@ -1,8 +1,7 @@
 package org.aibe4.dodeul.global.exception;
 
-import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
-import org.aibe4.dodeul.global.response.ApiResponse;
+import org.aibe4.dodeul.global.response.CommonResponse;
 import org.aibe4.dodeul.global.response.enums.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +19,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.util.NoSuchElementException;
+
 @Slf4j
 @RestControllerAdvice(annotations = RestController.class)
 public class GlobalRestExceptionHandler {
@@ -35,148 +36,179 @@ public class GlobalRestExceptionHandler {
      */
 
     /**
-     * 비즈니스 로직 예외 처리 (CustomException) - 서비스 계층에서 명시적으로 발생시킨 비즈니스 예외 처리 - ErrorCode에 정의된 HTTP 상태 코드와
-     * 메시지를 그대로 응답에 반영 - ApiResponse 형식으로 통일된 에러 응답을 반환
+     * 비즈니스 로직 예외 처리 (CustomException)
+     * Service 계층에서 명시적으로 발생시킨 비즈니스 예외를 처리
+     * ErrorCode에 정의된 HTTP 상태 코드와 메시지를 그대로 응답에 반영
+     * CommonResponse 형식으로 통일된 에러 응답을 반환
      */
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
+    public ResponseEntity<CommonResponse<Void>> handleCustomException(CustomException e) {
         ErrorCode errorCode = e.getErrorCode();
         log.warn("CustomException: {} ({})", e.getDetailMessage(), errorCode.name());
 
-        return ResponseEntity.status(errorCode.getHttpStatus())
-                .body(ApiResponse.fail(errorCode, e.getDetailMessage()));
+        return ResponseEntity
+            .status(errorCode.getHttpStatus())
+            .body(CommonResponse.fail(errorCode, e.getDetailMessage()));
     }
 
-    /** 잘못된 형식의 인자 */
+    /**
+     * 잘못된 형식의 인자
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
-    public ApiResponse<Void> handleIllegalArgument(IllegalArgumentException e) {
+    public CommonResponse<Void> handleIllegalArgument(IllegalArgumentException e) {
         log.warn("IllegalArgument: {}", e.getMessage());
-        return ApiResponse.fail(
-                ErrorCode.INVALID_INPUT_VALUE,
-                getMessageOrDefault(e, ErrorCode.INVALID_INPUT_VALUE));
+        return CommonResponse.fail(
+            ErrorCode.INVALID_INPUT_VALUE,
+            getMessageOrDefault(e, ErrorCode.INVALID_INPUT_VALUE));
     }
 
-    /** 데이터 조회 실패 */
+    /**
+     * 데이터 조회 실패
+     */
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoSuchElementException.class)
-    public ApiResponse<Void> handleNoSuchElement(NoSuchElementException e) {
+    public CommonResponse<Void> handleNoSuchElement(NoSuchElementException e) {
         log.warn("NoSuchElement: {}", e.getMessage());
-        return ApiResponse.fail(
-                ErrorCode.RESOURCE_NOT_FOUND, getMessageOrDefault(e, ErrorCode.RESOURCE_NOT_FOUND));
+        return CommonResponse.fail(
+            ErrorCode.RESOURCE_NOT_FOUND, getMessageOrDefault(e, ErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    /** 비즈니스 로직 위반 */
+    /**
+     * 비즈니스 로직 위반
+     */
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(IllegalStateException.class)
-    public ApiResponse<Void> handleIllegalState(IllegalStateException e) {
+    public CommonResponse<Void> handleIllegalState(IllegalStateException e) {
         log.warn("IllegalState: {}", e.getMessage());
-        return ApiResponse.fail(
-                ErrorCode.RESOURCE_CONFLICT, getMessageOrDefault(e, ErrorCode.RESOURCE_CONFLICT));
+        return CommonResponse.fail(
+            ErrorCode.RESOURCE_CONFLICT, getMessageOrDefault(e, ErrorCode.RESOURCE_CONFLICT));
     }
 
-    /** 파일 용량 초과 */
+    /**
+     * 파일 용량 초과
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ApiResponse<Void> handleFileSizeLimitExceeded(MaxUploadSizeExceededException e) {
+    public CommonResponse<Void> handleFileSizeLimitExceeded(MaxUploadSizeExceededException e) {
         log.warn("File Size Limit Exceeded: {}", e.getMessage());
-        return ApiResponse.fail(ErrorCode.INVALID_FILE, "파일 크기가 제한을 초과했습니다.");
+        return CommonResponse.fail(ErrorCode.INVALID_FILE, "파일 크기가 제한을 초과했습니다.");
     }
 
     // ====================================================
     // Validation Exceptions (Spring이 @Valid 검사 중 발생시키는 예외)
     // ====================================================
 
-    /** 유효성 검사 실패 {@code @RequestBody} {@code @Valid} */
+    /**
+     * 유효성 검사 실패 {@code @RequestBody} {@code @Valid}
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ApiResponse<Void> handleValidationException(MethodArgumentNotValidException e) {
+    public CommonResponse<Void> handleValidationException(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         log.warn("Validation Failed: {}", errorMessage);
-        return ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE, errorMessage);
+        return CommonResponse.fail(ErrorCode.INVALID_INPUT_VALUE, errorMessage);
     }
 
-    /** 유효성 검사 실패 {@code @ModelAttribute} */
+    /**
+     * 유효성 검사 실패 {@code @ModelAttribute}
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BindException.class)
-    public ApiResponse<Void> handleBindException(BindException e) {
+    public CommonResponse<Void> handleBindException(BindException e) {
         String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         log.warn("Bind Failed: {}", errorMessage);
-        return ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE, errorMessage);
+        return CommonResponse.fail(ErrorCode.INVALID_INPUT_VALUE, errorMessage);
     }
 
     // ====================================================
     // Request / Parameter Exceptions (클라이언트 요청 오류)
     // ====================================================
 
-    /** 파라미터 타입 불일치 */
+    /**
+     * 파라미터 타입 불일치
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ApiResponse<Void> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+    public CommonResponse<Void> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         String errorMessage = String.format("파라미터의 타입이 올바르지 않습니다. (%s)", e.getName());
         log.warn("Type Mismatch: {}", errorMessage);
-        return ApiResponse.fail(ErrorCode.TYPE_MISMATCH, errorMessage);
+        return CommonResponse.fail(ErrorCode.TYPE_MISMATCH, errorMessage);
     }
 
-    /** 필수 파라미터 누락 {@code @RequestParam} */
+    /**
+     * 필수 파라미터 누락 {@code @RequestParam}
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ApiResponse<Void> handleMissingParameter(MissingServletRequestParameterException e) {
+    public CommonResponse<Void> handleMissingParameter(MissingServletRequestParameterException e) {
         String errorMessage = String.format("필수 파라미터가 누락되었습니다. (%s)", e.getParameterName());
         log.warn("Missing Parameter: {}", errorMessage);
-        return ApiResponse.fail(ErrorCode.MISSING_PARAMETER, errorMessage);
+        return CommonResponse.fail(ErrorCode.MISSING_PARAMETER, errorMessage);
     }
 
-    /** 지원하지 않는 HTTP 메서드 호출 */
+    /**
+     * 지원하지 않는 HTTP 메서드 호출
+     */
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ApiResponse<Void> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+    public CommonResponse<Void> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
         String errorMessage = "지원하지 않는 HTTP 메서드입니다. (" + e.getMethod() + ")";
         log.warn("Method Not Supported: {}", errorMessage);
-        return ApiResponse.fail(ErrorCode.METHOD_NOT_ALLOWED, errorMessage);
+        return CommonResponse.fail(ErrorCode.METHOD_NOT_ALLOWED, errorMessage);
     }
 
-    /** JSON 파싱 오류 또는 Body 누락 */
+    /**
+     * JSON 파싱 오류 또는 Body 누락
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ApiResponse<Void> handleJsonError(HttpMessageNotReadableException e) {
+    public CommonResponse<Void> handleJsonError(HttpMessageNotReadableException e) {
         log.warn("JSON Parse Error: {}", e.getMessage());
-        return ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE, "JSON 형식이 올바르지 않거나 데이터가 비어있습니다.");
+        return CommonResponse.fail(ErrorCode.INVALID_INPUT_VALUE, "JSON 형식이 올바르지 않거나 데이터가 비어있습니다.");
     }
 
-    /** 잘못된 API 경로 호출 (Spring Boot 3.2+) */
+    /**
+     * 잘못된 API 경로 호출 (Spring Boot 3.2+)
+     */
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoResourceFoundException.class)
-    public ApiResponse<Void> handle404(NoResourceFoundException e) {
+    public CommonResponse<Void> handle404(NoResourceFoundException e) {
         log.warn("API Not Found: {}", e.getResourcePath());
-        return ApiResponse.fail(ErrorCode.API_NOT_FOUND);
+        return CommonResponse.fail(ErrorCode.API_NOT_FOUND);
     }
 
     // ====================================================
     // Security & System Exceptions (보안 및 서버 오류)
     // ====================================================
 
-    /** 권한 없음 */
+    /**
+     * 권한 없음
+     */
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
-    public ApiResponse<Void> handleAccessDenied(AccessDeniedException e) {
+    public CommonResponse<Void> handleAccessDenied(AccessDeniedException e) {
         log.warn("Access Denied: {}", e.getMessage());
-        return ApiResponse.fail(ErrorCode.ACCESS_DENIED);
+        return CommonResponse.fail(ErrorCode.ACCESS_DENIED);
     }
 
-    /** 예상치 못한 모든 에러 */
+    /**
+     * 예상치 못한 모든 에러
+     */
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public ApiResponse<Void> handleException(Exception e) {
+    public CommonResponse<Void> handleException(Exception e) {
         log.error("Internal Server Error", e);
-        return ApiResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR);
+        return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
     // ====================================================
     // Helper Method
     // ====================================================
 
-    /** 예외에 메시지가 있으면 반환하고, 없으면 ErrorCode의 기본 메시지를 반환합니다. */
+    /**
+     * 예외에 메시지가 있으면 반환하고, 없으면 ErrorCode의 기본 메시지를 반환합니다.
+     */
     private String getMessageOrDefault(Exception e, ErrorCode errorCode) {
         if (e.getMessage() != null && !e.getMessage().isBlank()) {
             return e.getMessage();
