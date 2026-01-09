@@ -3,6 +3,7 @@ package org.aibe4.dodeul.global.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +15,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -24,47 +26,60 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // CORS
             .cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/h2-console/**"))
-            .authorizeHttpRequests(auth -> auth
 
-                // demo role 테스트 보호
-                .requestMatchers("/api/demo/role/mentor").hasRole("MENTOR")
-                .requestMatchers("/api/demo/role/mentee").hasRole("MENTEE")
+            // CSRF: UI는 보호, API는 제외(개발 편의)
+            .csrf(
+                csrf ->
+                    csrf.ignoringRequestMatchers("/api/**", "/h2-console/**")
+                        .ignoringRequestMatchers("/consultations/**")
+                        .ignoringRequestMatchers("/ws/**")) // 웹소켓 엔드포인트 CSRF 제외
 
-                // 공개 허용
-                .requestMatchers(
-                    "/",
-                    "/error",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**",
-                    "/icons/**",
-                    "/favicon.ico",
+            // URL 권한
+            .authorizeHttpRequests(
+                auth ->
+                    auth
+                        // demo role 테스트 보호 (ApiController 기준)
+                        .requestMatchers("/api/demo/role/mentor")
+                        .hasRole("MENTOR")
+                        .requestMatchers("/api/demo/role/mentee")
+                        .hasRole("MENTEE")
 
-                    "/auth/**",
-                    "/onboarding/**",
+                        // 공개 허용
+                        // 공개 허용
+                        .requestMatchers(
+                            "/",
+                            "/error",
+                            "/css/**",
+                            "/js/**",
+                            "/images/**",
+                            "/icons/**", // 추가
+                            "/favicon.ico",
+                            "/auth/**",
+                            "/onboarding/**",
+                            "/api/auth/**",
+                            "/api/onboarding/**",
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/oauth2/**",
+                            "/login/oauth2/**",
+                            "/h2-console/**",
+                            "/demo/**",
+                            "/api/board/posts",
+                            "/demo/**",
+                            "/api/board/posts",
+                            "/api/board/posts/**",
+                            "/consultations/**",
+                            "/ws/**") // 웹소켓 엔드포인트 허용
+                        .permitAll()
 
-                    // 로그인/회원가입 등 (로그인 전 필요)
-                    "/api/auth/**",
-                    "/api/onboarding/**",
-
-                    "/swagger-ui.html",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/oauth2/**",
-                    "/login/oauth2/**",
-                    "/h2-console/**",
-
-                    "/demo/**",
-
-                    // board 공개 조회
-                    "/api/board/posts"
-                ).permitAll()
-
-                // 역할 기반 (mypage)
-                .requestMatchers("/mypage/mentor/**").hasRole("MENTOR")
-                .requestMatchers("/mypage/mentee/**").hasRole("MENTEE")
+                        // 역할 기반 (mypage)
+                        .requestMatchers("/mypage/mentor/**")
+                        .hasRole("MENTOR")
+                        .requestMatchers("/mypage/mentee/**")
+                        .hasRole("MENTEE")
 
                 // API 역할 분리
                 .requestMatchers("/api/mentor/**").hasRole("MENTOR")
