@@ -75,10 +75,12 @@ public class SecurityConfig {
                             "/ws/**") // 웹소켓 엔드포인트 허용
                         .permitAll()
 
-                        // 역할 기반 (mypage)
+                        // 역할 기반
                         .requestMatchers("/mypage/mentor/**")
                         .hasRole("MENTOR")
-                        .requestMatchers("/mypage/mentee/**")
+                        .requestMatchers(
+                            "/mypage/mentee/**",
+                            "/matchings/**")
                         .hasRole("MENTEE")
 
                         // API 역할 분리
