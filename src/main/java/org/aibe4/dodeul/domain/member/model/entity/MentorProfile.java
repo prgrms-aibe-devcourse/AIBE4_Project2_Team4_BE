@@ -14,7 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(name = "mentor_profiles")
 @EntityListeners(AuditingEntityListener.class)
-public class MentorProfile {
+public class MentorProfile implements Profile {
 
     @Id
     @Column(name = "mentor_id")
