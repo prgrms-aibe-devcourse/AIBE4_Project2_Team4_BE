@@ -18,27 +18,18 @@ public class BoardPostCreateRequest {
     private ConsultingTag consultingTag;
 
     @NotBlank(message = "제목은 공백일 수 없습니다.")
-    @Size(max = 255, message = "제목은 255자를 초과할 수 없습니다.")
+    @Size(min = 2, max = 100, message = "제목은 2자 이상 100자 이하여야 합니다.")
     private String title;
 
     @NotBlank(message = "내용은 공백일 수 없습니다.")
+    @Size(min = 10, message = "내용은 10자 이상이어야 합니다.")
     private String content;
 
     private List<Long> skillTagIds = new ArrayList<>();
 
-    public void setConsultingTag(ConsultingTag consultingTag) {
-        this.consultingTag = consultingTag;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
+    // ViewController에서 수동 파싱 결과 주입용
     public void setSkillTagIds(List<Long> skillTagIds) {
-        this.skillTagIds = (skillTagIds == null) ? new ArrayList<>() : new ArrayList<>(skillTagIds);
+        this.skillTagIds =
+            (skillTagIds == null) ? new ArrayList<>() : new ArrayList<>(skillTagIds);
     }
 }

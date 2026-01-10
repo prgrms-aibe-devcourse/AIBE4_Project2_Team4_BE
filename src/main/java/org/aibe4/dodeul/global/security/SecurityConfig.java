@@ -25,23 +25,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            // CORS
-            .cors(Customizer.withDefaults())
-
-            // CSRF: UI 보호, API/웹소켓 제외
+        http.cors(Customizer.withDefaults())
             .csrf(
                 csrf ->
                     csrf.ignoringRequestMatchers("/api/**", "/h2-console/**")
                         .ignoringRequestMatchers("/consultations/**")
                         .ignoringRequestMatchers("/ws/**"))
-
-            // URL 권한
             .authorizeHttpRequests(
                 auth ->
-                    auth
-                        // demo role 테스트
-                        .requestMatchers("/api/demo/role/mentor")
+                    auth.requestMatchers("/api/demo/role/mentor")
                         .hasRole("MENTOR")
                         .requestMatchers("/api/demo/role/mentee")
                         .hasRole("MENTEE")
@@ -52,7 +44,6 @@ public class SecurityConfig {
                         .requestMatchers("/post-login")
                         .authenticated()
 
-                        // 공개 허용
                         .requestMatchers(
                             "/",
                             "/error",
@@ -72,64 +63,50 @@ public class SecurityConfig {
                             "/login/oauth2/**",
                             "/h2-console/**",
                             "/demo/**",
-                            "/api/board/posts",
-                            "/api/board/posts/**",
                             "/consultations/**",
                             "/ws/**")
                         .permitAll()
 
-                        // 게시판(API): 비로그인 조회만 허용
+                        // 게시판(API): 비로그인 목록만 허용(상세 포함 나머지는 로그인 필요)
                         .requestMatchers(HttpMethod.GET, "/api/board/posts")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/board/posts/**")
                         .permitAll()
                         .requestMatchers("/api/board/posts/**")
                         .authenticated()
 
-                        // 게시판(View): 비로그인은 목록만
+                        // 게시판(View): 비로그인 목록만 허용(상세/작성/등록은 로그인 필요)
                         .requestMatchers(HttpMethod.GET, "/board/posts")
                         .permitAll()
-                        .requestMatchers("/board/posts/new")
-                        .authenticated()
                         .requestMatchers(HttpMethod.POST, "/board/posts")
                         .authenticated()
-                        .requestMatchers(HttpMethod.GET, "/board/posts/**")
+                        .requestMatchers("/board/posts/**")
                         .authenticated()
 
-                        // 마이페이지 역할 기반
+
+
                         .requestMatchers("/mypage/mentor/**")
                         .hasRole("MENTOR")
                         .requestMatchers("/mypage/mentee/**", "/matchings/**")
                         .hasRole("MENTEE")
 
-                        // API 역할 분리
                         .requestMatchers("/api/mentor/**")
                         .hasRole("MENTOR")
                         .requestMatchers("/api/mentee/**")
                         .hasRole("MENTEE")
-
-                        // 나머지 API / 마이페이지
                         .requestMatchers("/mypage/**", "/api/**")
                         .authenticated()
                         .anyRequest()
                         .authenticated())
-
-            // 세션
             .sessionManagement(
                 session ->
                     session
                         .sessionFixation(sessionFixation -> sessionFixation.migrateSession())
                         .invalidSessionUrl("/auth/login?expired"))
-
-            // 로그인
             .formLogin(
                 form ->
                     form.loginPage("/auth/login")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/post-login", true)
                         .permitAll())
-
-            // 로그아웃
             .logout(
                 logout ->
                     logout.logoutUrl("/logout")
