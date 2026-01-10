@@ -1,8 +1,14 @@
 package org.aibe4.dodeul.global.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.aibe4.dodeul.global.response.CommonResponse;
+import org.aibe4.dodeul.global.response.enums.ErrorCode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,7 +23,10 @@ import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final ObjectMapper objectMapper;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -102,6 +111,41 @@ public class SecurityConfig {
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .logoutSuccessUrl("/auth/login")
+            )
+            .exceptionHandling(handler -> handler
+                // 인증되지 않은 사용자
+                .authenticationEntryPoint((request, response, authException) -> {
+                    // API 요청이면 401 JSON 응답
+                    if (request.getRequestURI().startsWith("/api/")) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        response.setCharacterEncoding("UTF-8");
+
+                        CommonResponse<Void> errorResponse = CommonResponse.fail(ErrorCode.UNAUTHORIZED_ACCESS);
+                        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                    }
+                    // 화면 요청이면 로그인 페이지로 리다이렉트
+                    else {
+                        response.sendRedirect("/auth/login");
+                    }
+                })
+
+                // 권한이 없는 사용자
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    // API 요청이면 403 JSON 응답
+                    if (request.getRequestURI().startsWith("/api/")) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                        response.setCharacterEncoding("UTF-8");
+
+                        CommonResponse<Void> errorResponse = CommonResponse.fail(ErrorCode.ACCESS_DENIED);
+                        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                    }
+                    // 화면 요청이면 403 에러 페이지로 리다이렉트
+                    else {
+                        response.sendRedirect("/error/403");
+                    }
+                })
             );
 
         http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
