@@ -88,6 +88,7 @@ public class SecurityConfig {
                         .requestMatchers("/mypage/mentee/**", "/matchings/**")
                         .hasRole("MENTEE")
 
+<<<<<<< HEAD
                         .requestMatchers("/api/mentor/**")
                         .hasRole("MENTOR")
                         .requestMatchers("/api/mentee/**")
@@ -113,6 +114,35 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .logoutSuccessUrl("/auth/login"));
+=======
+                        // API 역할 분리
+                        .requestMatchers("/api/mentor/**").hasRole("MENTOR")
+                        .requestMatchers("/api/mentee/**").hasRole("MENTEE")
+
+                        // 나머지 마이페이지/API는 로그인 필요
+                        .requestMatchers("/mypage/**", "/api/**").authenticated()
+                        .anyRequest().authenticated()
+            )
+            .sessionManagement(session ->
+                session.sessionFixation(sessionFixation -> sessionFixation.migrateSession())
+                    .invalidSessionUrl("/auth/login?expired")
+            )
+            .formLogin(form -> form
+                .loginPage("/auth/login")
+                .loginProcessingUrl("/auth/login") // form action과 동일
+                .usernameParameter("email")        // input name="email"이면 이렇게
+                .passwordParameter("password")
+                .defaultSuccessUrl("/post-login", true)
+                .failureUrl("/auth/login?error")
+                .permitAll()
+            )
+            .logout(logout ->
+                logout.logoutUrl("/logout")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
+                    .logoutSuccessUrl("/auth/login")
+            );
+>>>>>>> b609d4e ([FEAT] 로그인 폼과 Spring Security 설정 불일치 수정)
 
         http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
         return http.build();
