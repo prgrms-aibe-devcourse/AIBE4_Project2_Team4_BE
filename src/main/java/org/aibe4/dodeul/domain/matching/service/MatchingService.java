@@ -85,7 +85,7 @@ public class MatchingService {
     public MatchingStatusResponse cancelMatching(Long matchingId, Long memberId) {
         Matching matching = findMatchingEntity(matchingId);
 
-        if (!matching.getMentor().getId().equals(memberId)) {
+        if (!matching.getMentee().getId().equals(memberId)) {
             throw new IllegalArgumentException("본인이 신청한 매칭만 취소할 수 있습니다.");
         }
         matching.cancel();
