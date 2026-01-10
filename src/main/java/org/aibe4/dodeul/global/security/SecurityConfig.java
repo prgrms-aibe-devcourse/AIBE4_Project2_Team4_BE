@@ -129,8 +129,8 @@ public class SecurityConfig {
             )
             .formLogin(form -> form
                 .loginPage("/auth/login")
-                .loginProcessingUrl("/auth/login") // form action과 동일
-                .usernameParameter("email")        // input name="email"이면 이렇게
+                .loginProcessingUrl("/auth/login")
+                .usernameParameter("email")
                 .passwordParameter("password")
                 .defaultSuccessUrl("/post-login", true)
                 .failureUrl("/auth/login?error")
